@@ -7,7 +7,7 @@ uniform float Zoom = 1.;
 uniform ivec2 iSize;
 
 in vec2 vsPos;
-out float fsColor;
+out vec3 fsColor;
 
 void main() {
     dvec2 start = vsPos * Aspect / Zoom + Offset;
@@ -20,6 +20,6 @@ void main() {
         pos.x = sqpos.x - sqpos.y + start.x;
         sqpos = pos * pos;
     }
-
-    fsColor = (float(i) / float(iIterations));
+    float factor = float(i) / float(iIterations);
+    fsColor = vec3(factor > .99 ? 0 : factor);
 }

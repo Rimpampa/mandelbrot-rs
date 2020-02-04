@@ -2,7 +2,7 @@
 mod graphics;
 mod ifloat;
 
-use graphics::{framebuffer::Framebuffer, shader::*, texture::Texture, vao::VertexArrayObject};
+use graphics::{shader::*, vao::VertexArrayObject};
 
 use sdl2::{
     event::{Event, WindowEvent},
@@ -44,35 +44,11 @@ fn main() -> Result<(), String> {
     // Load OpenGL functions
     let _gl = gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const _);
 
-    // let mut n = 0;
-    // unsafe {
-    //     gl::GetIntegerv(gl::NUM_EXTENSIONS, &mut n);
-    //     for i in 0..n {
-    //         let buf = gl::GetStringi(gl::EXTENSIONS, i as u32);
-    //         let cstr = std::ffi::CStr::from_ptr(buf as *mut _);
-    //         let ext = cstr.to_str().map_err(|e| format!("{}", e))?;
-    //         println!("Ext {}: {}", i, ext);
-    //     }
-    // }
-
     // Load the vertex shader form the file and compile it
-    let vs_fractal = VertexShader::new(Path::new("shaders/fractal.vert")).map_err(|e| {
-        println!("{}", e);
-        e
-    })?;
-    // Load the fragment shader form the file and compile it
-    let fs_fractal = FragmentShader::new(Path::new("shaders/dfractal.frag")).map_err(|e| {
-        println!("{}", e);
-        e
-    })?;
-    // Load the fragment shader form the file and compile it
-    let fs_texture = FragmentShader::new(Path::new("shaders/texture.frag")).map_err(|e| {
-        println!("{}", e);
-        e
-    })?;
+    let vs_fractal = VertexShader::new(Path::new("shaders/fractal.vert"))?;
 
-    // Link the shaders to the program and compile it
-    let texture_program = Program::new(&vs_fractal, None, None, None, &fs_texture)?;
+    // Load the fragment shader form the file and compile it
+    let fs_fractal = FragmentShader::new(Path::new("shaders/dfractal.frag"))?;
 
     // Link the shaders to the program and compile it
     let fractal_program = Program::new(&vs_fractal, None, None, None, &fs_fractal)?;
@@ -125,11 +101,6 @@ fn main() -> Result<(), String> {
     let vao = VertexArrayObject::new();
     VertexArrayObject::bind(&vao);
 
-    let mut render_texture = Texture::new(window_size.0, window_size.1);
-    Texture::bind(&render_texture);
-
-    let framebuffer = Framebuffer::new(&render_texture)?;
-
     // Generate an event pump
     let mut event_pump = sdl.event_pump()?;
 
@@ -148,9 +119,6 @@ fn main() -> Result<(), String> {
                 // ----- WINDOW EVENTS -----
                 Event::Window { win_event, .. } => match win_event {
                     WindowEvent::Resized(width, height) => {
-                        render_texture.resize(width as u32, height as u32);
-                        Texture::bind(&render_texture);
-                        
                         // Normalize the size of the window
                         aspect = aspect_ratio(width, height);
                         // Calculate the new pixel size
@@ -245,21 +213,11 @@ fn main() -> Result<(), String> {
         }
         if update {
             unsafe {
-                Framebuffer::bind(&framebuffer);
-                Program::bind(&fractal_program);
-                
-                gl::Clear(gl::COLOR_BUFFER_BIT);
-                gl::DrawArrays(gl::TRIANGLES, 0, 6);
-                
-                Framebuffer::unbind();
-                Program::bind(&texture_program);
-                
                 gl::Clear(gl::COLOR_BUFFER_BIT);
                 gl::DrawArrays(gl::TRIANGLES, 0, 6);
             }
             window.gl_swap_window();
             update = false;
-            Program::bind(&fractal_program);
             // DEBUG MESSAGES
             // println!("Iterations: {}", iterations);
             // println!("Offset: {:4}, {:4}", offset.0, offset.1);
