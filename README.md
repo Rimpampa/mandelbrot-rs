@@ -1,4 +1,4 @@
-# Mandelbot-rs
+# Mandelbrot-rs
 
 Mandelbrot-rs is an real-time renderer of the [Mandelbrot set](https://en.wikipedia.org/wiki/Mandelbrot_set).
 With it you can explore this amazing frctal and watch the many shapes it contains, unfortunately it's not able to deep zoom at high levels
