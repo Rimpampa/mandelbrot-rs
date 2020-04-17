@@ -1,6 +1,5 @@
 #[allow(unused)]
 mod graphics;
-mod ifloat;
 
 use graphics::{shader::*, vao::VertexArrayObject};
 
